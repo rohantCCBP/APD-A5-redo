@@ -14,11 +14,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 
@@ -28,11 +28,13 @@ public class ViewController {
     @FXML private Slider quantitySlider;
     @FXML private Label purchaseQuantityValueLabel;
     @FXML private Label purchasePriceValueLabel;
-
- @FXML private Button addButton;
     
- 
- @FXML private TableView<ItemInCart> itemsTableView;
+    @FXML private Button addButton;
+    
+    
+    @FXML private TableView<ItemInCart> itemsTableView;
+    @FXML private TextArea itemDetailsTextArea;
+
     @FXML private TableColumn<ItemInCart, String> itemNameColumn;
     @FXML private TableColumn<ItemInCart, Number> purchasedUnitsColumn;
     @FXML private TableColumn<ItemInCart, Number> purchasePriceColumn;
@@ -51,45 +53,39 @@ DoubleBinding totalBinding = Bindings.createDoubleBinding(() ->
                 cartObservableList);
 
         totalAmountLabel.textProperty().bind(Bindings.format("Total amount: $%.2f", totalBinding));
-// cartObservableList.addListener((ListChangeListener.Change<? extends ItemInCart> c) -> {
-//     while (c.next()) {
-//         if (c.wasAdded() || c.wasRemoved()) {
-//             System.out.println("Change detected in cartObservableList");
-//         }
-//     }
-// });
 
-        // Add selection change listener for the itemsTableView
+        
         itemsTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                // Find Item by name in itemsObservableList
-                Item item = itemsObservableList.stream()
-                    .filter(i -> i.getName().equals(newSelection.getName()))
-                    .findFirst()
-                    .orElse(null);
                 
-                // Update ComboBox and Slider
-                if (item != null) {
-                    itemsComboBox.setValue(item);
-                    quantitySlider.setValue(newSelection.getQuantity());
-                }
+                String details = "Name: " + newSelection.getName() + "\n" +
+                                 "Quantity: " + newSelection.getQuantity() + "\n" +
+                                 "Unit Price: " + newSelection.getUnitPrice() + "\n" +
+                                 "Total Price: " + newSelection.getTotalPrice();
+                itemDetailsTextArea.setText(details);
+            } else {
+                itemDetailsTextArea.clear();
             }
         });
         
-    
 
-
-
-        // Initialize columns
+        itemsComboBox.valueProperty().addListener((obs, oldItem, newItem) -> {
+            if (newItem != null) {
+                String itemDetails = String.format("Name: %s\nUnit: %s\nPrice: %.2f\nQuantity: %.2f",
+                        newItem.getName(), newItem.getUnit(), newItem.getUnitPrice(), newItem.getQuantity());
+                itemDetailsTextArea.setText(itemDetails); // Update your text area with this string.
+            } else {
+                itemDetailsTextArea.clear();
+            }
+        });
+        
         itemNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         purchasedUnitsColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         
-        // This is a simplified example, you will need to implement the calculation logic
         purchasePriceColumn.setCellValueFactory(cellData -> 
                 cellData.getValue().unitPriceProperty().multiply(cellData.getValue().quantityProperty()));
         
         itemsTableView.setItems(cartObservableList);
-
 
         model = new Model();
         try {
@@ -121,7 +117,7 @@ DoubleBinding totalBinding = Bindings.createDoubleBinding(() ->
     }
 public void loadItemsFromCSV() {
     String line;
-    String splitBy = ","; // CSV delimiter.
+    String splitBy = ",";
     try (BufferedReader br = new BufferedReader(new FileReader("ItemsMaster.csv"))) {
         while ((line = br.readLine()) != null) {
             String[] itemDetails = line.split(splitBy);
@@ -129,7 +125,7 @@ public void loadItemsFromCSV() {
                 try {
                     String name = itemDetails[0];
                     double price = Double.parseDouble(itemDetails[1]);
-                    itemsObservableList.add(new Item(name, name, 1, price)); // Quantity is set to 1 by default
+                    itemsObservableList.add(new Item(name, name, 1, price));
                 } catch (NumberFormatException e) {
                     System.err.println("Skipping line due to NumberFormatException: " + line);
                 }

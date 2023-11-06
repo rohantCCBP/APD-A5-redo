@@ -6,7 +6,7 @@ import javafx.beans.property.SimpleStringProperty;
 public class ItemInCart {
     private final SimpleStringProperty name;
     private final SimpleDoubleProperty quantity;
-    private final SimpleDoubleProperty unitPrice; // Assuming you have a unit price for each item.
+    private final SimpleDoubleProperty unitPrice;
 
     public ItemInCart(String name, double quantity, double unitPrice) {
         this.name = new SimpleStringProperty(name);
