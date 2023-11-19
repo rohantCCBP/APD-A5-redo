@@ -3,12 +3,13 @@ package Models;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 
-public class ItemInCart {
+public class ItemInCart implements Serializable{
     private final SimpleStringProperty name;
     private final SimpleDoubleProperty quantity;
     private final SimpleDoubleProperty unitPrice;

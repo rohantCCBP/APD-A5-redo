@@ -3,12 +3,15 @@ package Controllers;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 
 import Models.Item;
 import Models.ItemInCart;
 import Models.Model;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
@@ -165,13 +168,58 @@ public void handleRemoveAction(ActionEvent event) {
 private void handleSaveCart() {
     String filename = "Cart_" + System.currentTimeMillis() + ".ser";
     try {
-        model.saveCart(cartObservableList, filename);
+        model.saveCart(cartObservableList, "savedCarts.csv");
         // Inform user of success
     } catch (IOException e) {
         // Inform user of failure
         e.printStackTrace();
     }
 }
+
+@FXML
+public void onSaveCartClicked() {
+    try {
+        model.saveCart(cartObservableList);
+        showAlert("Cart saved successfully.");
+    } catch (IOException e) {
+        showAlert("Failed to save cart.");
+        e.printStackTrace();
+    }
+}
+
+ @FXML
+    public void onShowCartsClicked() {
+        // Here you would load the uncompleted carts view
+        // For simplicity, let's just print the uncompleted carts
+        List<String> uncompletedCarts = model.getUncompletedCarts();
+        uncompletedCarts.forEach(System.out::println);
+    }
+
+
+ @FXML
+    public void onCheckoutClicked() {
+        if (confirmCheckout()) {
+            boolean isDeleted = model.checkOutCart("savedCarts.csv");
+            if (isDeleted) {
+                cartObservableList.clear();
+                showAlert("Checkout successful.");
+            } else {
+                showAlert("Checkout failed.");
+            }
+        }
+    }
+
+    private boolean confirmCheckout() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to check out?", ButtonType.YES, ButtonType.NO);
+        alert.showAndWait();
+        return alert.getResult() == ButtonType.YES;
+    }
+
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, message, ButtonType.OK);
+        alert.showAndWait();
+    }
+
 
 @FXML
 private void handleShowCarts() {
@@ -182,7 +230,7 @@ private void handleShowCarts() {
 @FXML
 private void handleCheckout() {
     // Get confirmation from the user first, then:
-    boolean isDeleted = model.checkOutCart("path/to/cart/file");
+    boolean isDeleted = model.checkOutCart("savedCarts.csv");
     if (isDeleted) {
         cartObservableList.clear();
         // Update UI accordingly
