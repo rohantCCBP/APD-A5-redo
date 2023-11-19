@@ -166,12 +166,11 @@ public void handleRemoveAction(ActionEvent event) {
 
 @FXML
 private void handleSaveCart() {
-    String filename = "Cart_" + System.currentTimeMillis() + ".ser";
     try {
-        model.saveCart(cartObservableList, "savedCarts.csv");
-        // Inform user of success
+        model.saveCart(cartObservableList);
+        showAlert("Cart saved successfully.");
     } catch (IOException e) {
-        // Inform user of failure
+        showAlert("Failed to save cart.");
         e.printStackTrace();
     }
 }
@@ -199,7 +198,7 @@ public void onSaveCartClicked() {
  @FXML
     public void onCheckoutClicked() {
         if (confirmCheckout()) {
-            boolean isDeleted = model.checkOutCart("savedCarts.csv");
+            boolean isDeleted = model.checkOutCart();
             if (isDeleted) {
                 cartObservableList.clear();
                 showAlert("Checkout successful.");
@@ -230,7 +229,7 @@ private void handleShowCarts() {
 @FXML
 private void handleCheckout() {
     // Get confirmation from the user first, then:
-    boolean isDeleted = model.checkOutCart("savedCarts.csv");
+    boolean isDeleted = model.checkOutCart();
     if (isDeleted) {
         cartObservableList.clear();
         // Update UI accordingly

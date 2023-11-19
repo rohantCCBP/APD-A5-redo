@@ -62,9 +62,14 @@
             <TextArea fx:id="itemDetailsTextArea" editable="false" wrapText="true" />
 
             <Button fx:id="removeButton" text="Remove from Cart" onAction="#handleRemoveAction" />
-<Button fx:id="btnSaveCart" text="Save Cart" onAction="#handleSaveCart" />
+<!-- <Button fx:id="btnSaveCart" text="Save Cart" onAction="#handleSaveCart" />
 <Button fx:id="btnShowCarts" text="Show Carts" onAction="#handleShowCarts" />
-<Button fx:id="btnCheckout" text="Checkout" onAction="#handleCheckout" />
+<Button fx:id="btnCheckout" text="Checkout" onAction="#handleCheckout" /> -->
+        
+        <Button fx:id="btnSaveCart" text="Save Cart" onAction="#onSaveCartClicked"  />
+<Button fx:id="btnShowCarts" text="Show Carts" onAction="#onShowCartsClicked" />
+<Button fx:id="btnCheckout" text="Checkout" onAction="#onCheckoutClicked" />
+        
         </VBox>
     </center>
 <bottom>

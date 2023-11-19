@@ -23,13 +23,13 @@ public class Model {
     //         oos.writeObject(new ArrayList<>(cartItems));
     //     }
     // }
-     public void saveCart(List<ItemInCart> cartItems) throws IOException {
+    public void saveCart(List<ItemInCart> cartItems) throws IOException {
         try (PrintWriter pw = new PrintWriter(new FileWriter("savedCarts.csv"))) {
             for (ItemInCart item : cartItems) {
                 pw.println(item.getName() + "," + item.getQuantity() + "," + item.getUnitPrice());
             }
         }
-     }
+    }
 
     public List<String> getUncompletedCarts() {
         List<String> uncompletedCarts = new ArrayList<>();
@@ -43,11 +43,10 @@ public class Model {
 
 
 
-     public boolean checkOutCart(String filename) {
+    public boolean checkOutCart() {
         File cartFile = new File("savedCarts.csv");
         return cartFile.delete();
     }
-
 
     public ObservableList<Item> getItemsObservableList() {
         return itemsObservableList;
