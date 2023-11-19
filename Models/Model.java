@@ -4,11 +4,29 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Model {
     private ObservableList<Item> itemsObservableList = FXCollections.observableArrayList();
+
+ // This method saves the list of items in the cart to a file
+    public void saveCart(List<ItemInCart> cartItems, String filename) throws IOException {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
+            oos.writeObject(new ArrayList<>(cartItems));
+        }
+    }
+
+     public boolean checkOutCart(String filename) {
+        File cartFile = new File(filename);
+        return cartFile.delete();
+    }
+
 
     public ObservableList<Item> getItemsObservableList() {
         return itemsObservableList;

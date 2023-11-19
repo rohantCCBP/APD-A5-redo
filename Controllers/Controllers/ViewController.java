@@ -30,7 +30,12 @@ public class ViewController {
     @FXML private Label purchasePriceValueLabel;
     
     @FXML private Button addButton;
-    
+    @FXML
+    private Button btnSaveCart;
+    @FXML
+    private Button btnShowCarts;
+    @FXML
+    private Button btnCheckout;
     
     @FXML private TableView<ItemInCart> itemsTableView;
     @FXML private TextArea itemDetailsTextArea;
@@ -43,8 +48,10 @@ public class ViewController {
 
     private ObservableList<Item> itemsObservableList = FXCollections.observableArrayList();
     private ObservableList<ItemInCart> cartObservableList = FXCollections.observableArrayList();
+
     private Model model;
 
+    
     public void initialize() {
         loadItemsFromCSV();
        
@@ -151,6 +158,36 @@ public void handleRemoveAction(ActionEvent event) {
     int selectedIndex = itemsTableView.getSelectionModel().getSelectedIndex();
     if (selectedIndex >= 0) {
         cartObservableList.remove(selectedIndex);
+    }
+}
+
+@FXML
+private void handleSaveCart() {
+    String filename = "Cart_" + System.currentTimeMillis() + ".ser";
+    try {
+        model.saveCart(cartObservableList, filename);
+        // Inform user of success
+    } catch (IOException e) {
+        // Inform user of failure
+        e.printStackTrace();
+    }
+}
+
+@FXML
+private void handleShowCarts() {
+    // Open the window with the list of uncompleted carts
+    // You will need to write the code to load and show the new window
+}
+
+@FXML
+private void handleCheckout() {
+    // Get confirmation from the user first, then:
+    boolean isDeleted = model.checkOutCart("path/to/cart/file");
+    if (isDeleted) {
+        cartObservableList.clear();
+        // Update UI accordingly
+    } else {
+        // Inform user of failure
     }
 }
 

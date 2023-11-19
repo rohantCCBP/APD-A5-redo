@@ -1,7 +1,12 @@
 package Models;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
 
 public class ItemInCart {
     private final SimpleStringProperty name;
@@ -12,6 +17,15 @@ public class ItemInCart {
         this.name = new SimpleStringProperty(name);
         this.quantity = new SimpleDoubleProperty(quantity);
         this.unitPrice = new SimpleDoubleProperty(unitPrice);
+    }
+
+
+public void saveCart(ObservableList<ItemInCart> cart, String filename) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
+            oos.writeObject(cart);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getName() {
