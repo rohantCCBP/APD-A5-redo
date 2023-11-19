@@ -1,15 +1,27 @@
 package Models;
 
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 
+
+
+
 public class ItemInCart implements Serializable{
+    private Map<String, List<ItemInCart>> cartDetails = new HashMap<>();
+
     private final SimpleStringProperty name;
     private final SimpleDoubleProperty quantity;
     private final SimpleDoubleProperty unitPrice;
@@ -19,16 +31,25 @@ public class ItemInCart implements Serializable{
         this.quantity = new SimpleDoubleProperty(quantity);
         this.unitPrice = new SimpleDoubleProperty(unitPrice);
     }
-
-
-public void saveCart(ObservableList<ItemInCart> cart, String filename) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
-            oos.writeObject(cart);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    
+private void saveCartSummary(String cartNumber, double totalPrice) throws IOException {
+    try (PrintWriter pw = new PrintWriter(new FileWriter("savedCarts.csv", true))) { 
+        pw.println(cartNumber + "," + totalPrice);
     }
+}
 
+
+private void saveCartDetails(String cartNumber, List<ItemInCart> items) {
+    cartDetails.put(cartNumber, items);
+}
+
+// public void saveCart(ObservableList<ItemInCart> items) throws IOException {
+//         String cartNumber = generateUniqueCartNumber();
+//     double totalPrice = calculateTotalPrice(items);
+
+//     saveCartSummary(cartNumber, totalPrice); 
+//     saveCartDetails(cartNumber, items); 
+// }
     public String getName() {
         return name.get();
     }

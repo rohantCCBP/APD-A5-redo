@@ -11,25 +11,56 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Model {
     private ObservableList<Item> itemsObservableList = FXCollections.observableArrayList();
+    
+private Map<String, List<ItemInCart>> cartDetails = new HashMap<>();
 
- // This method saves the list of items in the cart to a file
-    // public void saveCart(List<ItemInCart> cartItems, String filename) throws IOException {
-    //     try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
-    //         oos.writeObject(new ArrayList<>(cartItems));
-    //     }
-    // }
-    public void saveCart(List<ItemInCart> cartItems) throws IOException {
-        try (PrintWriter pw = new PrintWriter(new FileWriter("savedCarts.csv"))) {
-            for (ItemInCart item : cartItems) {
-                pw.println(item.getName() + "," + item.getQuantity() + "," + item.getUnitPrice());
-            }
-        }
+private String generateUniqueCartNumber() {
+    LocalDateTime now = LocalDateTime.now();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    return now.format(formatter);
+}
+
+private double calculateTotalPrice(ObservableList<ItemInCart> items) {
+    double totalPrice = 0;
+    for (ItemInCart item : items) {
+        totalPrice += item.getQuantity() * item.getUnitPrice();
     }
+    return totalPrice;
+}
+
+
+
+public void saveCart(ObservableList<ItemInCart> items)  throws IOException {
+    String cartNumber = generateUniqueCartNumber();
+    double totalPrice = calculateTotalPrice(items);
+
+    saveCartSummary(cartNumber, totalPrice);
+    saveCartDetails(cartNumber, new ArrayList<>(items));
+}
+
+
+
+private void saveCartSummary(String cartNumber, double totalPrice) throws IOException {
+    try (PrintWriter pw = new PrintWriter(new FileWriter("savedCarts.csv", true))) {
+        pw.println(cartNumber + "," + totalPrice);
+    }
+}
+private void saveCartDetails(String cartNumber, List<ItemInCart> items) {
+    cartDetails.put(cartNumber, new ArrayList<>(items));
+}
+
+public List<ItemInCart> loadCartDetails(String cartNumber) {
+    return cartDetails.get(cartNumber);
+}
 
     public List<String> getUncompletedCarts() {
         List<String> uncompletedCarts = new ArrayList<>();
@@ -39,9 +70,6 @@ public class Model {
         }
         return uncompletedCarts;
     }
-
-
-
 
     public boolean checkOutCart() {
         File cartFile = new File("savedCarts.csv");

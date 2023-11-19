@@ -1,14 +1,19 @@
 package Controllers;
 
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
+import javax.print.DocFlavor.URL;
+
 import Models.Item;
 import Models.ItemInCart;
 import Models.Model;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -19,11 +24,16 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+
+import Controllers.UncompletedCartsController;
+import Controllers.UncompletedCartsController.Cart;
 
 public class ViewController {
     @FXML private ComboBox<Item> itemsComboBox;
@@ -186,13 +196,13 @@ public void onSaveCartClicked() {
     }
 }
 
- @FXML
-    public void onShowCartsClicked() {
-        // Here you would load the uncompleted carts view
-        // For simplicity, let's just print the uncompleted carts
-        List<String> uncompletedCarts = model.getUncompletedCarts();
-        uncompletedCarts.forEach(System.out::println);
-    }
+//  @FXML
+//     public void onShowCartsClicked() {
+//         // Here you would load the uncompleted carts view
+//         // For simplicity, let's just print the uncompleted carts
+//         List<String> uncompletedCarts = model.getUncompletedCarts();
+//         uncompletedCarts.forEach(System.out::println);
+//     }
 
 
  @FXML
@@ -218,12 +228,60 @@ public void onSaveCartClicked() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION, message, ButtonType.OK);
         alert.showAndWait();
     }
+    private ObservableList<Cart> readCartsFromCSV(String filePath) {
+        ObservableList<Cart> carts = FXCollections.observableArrayList();
+        try (BufferedReader br = new BufferedReader(new FileReader("savedCarts.csv"))) { 
+             String line;
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(","); 
+                String cartNumber = values[0];
+                double totalPrice = Double.parseDouble(values[1]);
+                carts.add(new Cart(cartNumber, totalPrice));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return carts;
+    }
+    
+    @FXML
+    private void handleShowCarts() {
+        try {
+            VBox root = new VBox();
+            root.setSpacing(10);
+    
+            Label titleLabel = new Label("List of Carts");
+            root.getChildren().add(titleLabel);
+    
+            TableView<Cart> tableView = new TableView<>();
+            TableColumn<Cart, String> cartNumberColumn = new TableColumn<>("Cart Number");
+            cartNumberColumn.setCellValueFactory(new PropertyValueFactory<>("cartNumber"));
+            TableColumn<Cart, Double> totalPriceColumn = new TableColumn<>("Total Price");
+            totalPriceColumn.setCellValueFactory(new PropertyValueFactory<>("totalPrice"));
+            tableView.getColumns().addAll(cartNumberColumn, totalPriceColumn);
+    
+            // Populate the TableView
+            ObservableList<Cart> cartData = readCartsFromCSV("/savedCarts.csv"); 
+            tableView.setItems(cartData);
+    
+            root.getChildren().add(tableView);
+    
+            Button loadCartButton = new Button("Load Cart");
+        // Instantiate UncompletedCartsController
+        UncompletedCartsController uncompletedCartsController = new UncompletedCartsController();
 
+        // Use the handleLoadCart method from UncompletedCartsController
+        loadCartButton.setOnAction(event -> uncompletedCartsController.handleLoadCart());  
 
-@FXML
-private void handleShowCarts() {
-    // Open the window with the list of uncompleted carts
-    // You will need to write the code to load and show the new window
+        root.getChildren().add(loadCartButton);
+
+        Stage stage = new Stage();
+        stage.setScene(new Scene(root));
+        stage.setTitle("Uncompleted Carts");
+        stage.show();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
 }
 
 @FXML
@@ -232,9 +290,7 @@ private void handleCheckout() {
     boolean isDeleted = model.checkOutCart();
     if (isDeleted) {
         cartObservableList.clear();
-        // Update UI accordingly
     } else {
-        // Inform user of failure
     }
 }
 
