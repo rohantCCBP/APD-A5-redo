@@ -196,15 +196,6 @@ public void onSaveCartClicked() {
     }
 }
 
-//  @FXML
-//     public void onShowCartsClicked() {
-//         // Here you would load the uncompleted carts view
-//         // For simplicity, let's just print the uncompleted carts
-//         List<String> uncompletedCarts = model.getUncompletedCarts();
-//         uncompletedCarts.forEach(System.out::println);
-//     }
-
-
  @FXML
     public void onCheckoutClicked() {
         if (confirmCheckout()) {

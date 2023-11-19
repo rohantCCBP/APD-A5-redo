@@ -42,14 +42,6 @@ private void saveCartSummary(String cartNumber, double totalPrice) throws IOExce
 private void saveCartDetails(String cartNumber, List<ItemInCart> items) {
     cartDetails.put(cartNumber, items);
 }
-
-// public void saveCart(ObservableList<ItemInCart> items) throws IOException {
-//         String cartNumber = generateUniqueCartNumber();
-//     double totalPrice = calculateTotalPrice(items);
-
-//     saveCartSummary(cartNumber, totalPrice); 
-//     saveCartDetails(cartNumber, items); 
-// }
     public String getName() {
         return name.get();
     }
