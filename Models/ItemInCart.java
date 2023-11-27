@@ -26,11 +26,32 @@ public class ItemInCart implements Serializable{
     private final SimpleDoubleProperty quantity;
     private final SimpleDoubleProperty unitPrice;
 
+
+    private ObservableList<ItemInCart> cartItems;
+
+
     public ItemInCart(String name, double quantity, double unitPrice) {
         this.name = new SimpleStringProperty(name);
         this.quantity = new SimpleDoubleProperty(quantity);
         this.unitPrice = new SimpleDoubleProperty(unitPrice);
     }
+
+   
+
+    public String getItemName() {
+        return getName();  
+    }
+    
+    public double getPurchasedUnits() {
+        return getQuantity();  
+    }
+    
+    public double getPurchasePrice() {
+        return getUnitPrice();  
+    }
+
+
+
     
 private void saveCartSummary(String cartNumber, double totalPrice) throws IOException {
     try (PrintWriter pw = new PrintWriter(new FileWriter("savedCarts.csv", true))) { 

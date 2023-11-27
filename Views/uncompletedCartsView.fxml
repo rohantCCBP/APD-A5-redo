@@ -7,8 +7,7 @@
 <?import javafx.scene.Scene?>
 <?import javafx.stage.Stage?>
 
-<!-- <VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.Controllers.UncompletedCartsController" spacing="10" alignment="CENTER"> -->
-    <VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.UncompletedCartsController">
+  <VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.UncompletedCartsController">
     <Label text="List of Carts" />
     <TableView fx:id="cartsTableView">
         <columns>

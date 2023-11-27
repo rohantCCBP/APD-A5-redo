@@ -4,9 +4,22 @@ package Controllers;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.print.DocFlavor.URL;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.SQLException;
+
 
 import Models.Item;
 import Models.ItemInCart;
@@ -34,7 +47,7 @@ import javafx.event.ActionEvent;
 
 import Controllers.UncompletedCartsController;
 import Controllers.UncompletedCartsController.Cart;
-
+  
 public class ViewController {
     @FXML private ComboBox<Item> itemsComboBox;
     @FXML private Label unitValueLabel;
@@ -64,10 +77,14 @@ public class ViewController {
 
     private Model model;
 
+   
     
     public void initialize() {
         loadItemsFromCSV();
-       
+
+        ObservableList<ItemInCart> cartItems = FXCollections.observableArrayList();
+        itemsTableView.setItems(cartItems);
+
 DoubleBinding totalBinding = Bindings.createDoubleBinding(() ->
                 cartObservableList.stream().mapToDouble(item -> item.getQuantity() * item.getUnitPrice()).sum(),
                 cartObservableList);
@@ -126,6 +143,10 @@ DoubleBinding totalBinding = Bindings.createDoubleBinding(() ->
             purchaseQuantityValueLabel.setText(String.format("%.0f", newVal.doubleValue()));
             updateTotalPrice();
         });
+    }
+
+     public ObservableList<ItemInCart> getCartItems() {
+        return cartObservableList;
     }
 
     private void updateTotalPrice() {
@@ -187,27 +208,69 @@ private void handleSaveCart() {
 
 @FXML
 public void onSaveCartClicked() {
-    try {
-        model.saveCart(cartObservableList);
-        showAlert("Cart saved successfully.");
-    } catch (IOException e) {
-        showAlert("Failed to save cart.");
+    String insertQuery = "INSERT INTO cart (itemName, purchasedUnits, purchasePrice) VALUES (?, ?, ?)";
+    
+    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/apd-db", "root", "password");
+         PreparedStatement pst = conn.prepareStatement(insertQuery)) {
+        
+        for (ItemInCart item : getCartItems()) {
+            pst.setString(1, item.getItemName());  
+            pst.setDouble(2, item.getPurchasedUnits()); 
+            pst.setDouble(3, item.getPurchasePrice());  
+            pst.addBatch();
+        }
+        pst.executeBatch();
+        
+        // Alert to show success message
+        new Alert(Alert.AlertType.INFORMATION, "Cart saved to database successfully.").show();
+        
+    } catch (SQLException e) {
         e.printStackTrace();
     }
 }
 
  @FXML
-    public void onCheckoutClicked() {
-        if (confirmCheckout()) {
-            boolean isDeleted = model.checkOutCart();
-            if (isDeleted) {
-                cartObservableList.clear();
-                showAlert("Checkout successful.");
-            } else {
-                showAlert("Checkout failed.");
-            }
-        }
+ public void onCheckoutClicked() {
+    String deleteQuery = "DELETE FROM cart";
+
+    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/apd-db", "root", "password");
+         Statement stmt = conn.createStatement()) {
+
+        stmt.executeUpdate(deleteQuery);
+ 
+        itemsTableView.getItems().clear();
+ 
+        new Alert(Alert.AlertType.INFORMATION, "Checkout complete, cart cleared.").show();
+
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+}
+
+public void onLoadFromDbClicked() {
+    String selectQuery = "SELECT * FROM cart";
+    
+    try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/apd-db", "root", "password");
+         Statement stmt = conn.createStatement();
+         ResultSet rs = stmt.executeQuery(selectQuery)) {
+        
+        itemsTableView.getItems().clear();
+        
+        while (rs.next()) {
+            
+            ItemInCart item = new ItemInCart(
+                rs.getString("itemName"),
+                rs.getInt("purchasedUnits"),
+                rs.getBigDecimal("purchasePrice").doubleValue()
+            );
+            itemsTableView.getItems().add(item); 
+        }
+        
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
 
     private boolean confirmCheckout() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to check out?", ButtonType.YES, ButtonType.NO);
@@ -219,7 +282,7 @@ public void onSaveCartClicked() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION, message, ButtonType.OK);
         alert.showAndWait();
     }
-    private ObservableList<Cart> readCartsFromCSV(String filePath) {
+    private ObservableList<Cart> readCartsFromCSV() {
         ObservableList<Cart> carts = FXCollections.observableArrayList();
         try (BufferedReader br = new BufferedReader(new FileReader("savedCarts.csv"))) { 
              String line;
@@ -252,7 +315,7 @@ public void onSaveCartClicked() {
             tableView.getColumns().addAll(cartNumberColumn, totalPriceColumn);
     
             // Populate the TableView
-            ObservableList<Cart> cartData = readCartsFromCSV("/savedCarts.csv"); 
+            ObservableList<Cart> cartData = readCartsFromCSV(); 
             tableView.setItems(cartData);
     
             root.getChildren().add(tableView);
