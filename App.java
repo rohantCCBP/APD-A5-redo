@@ -1,5 +1,5 @@
 /**********************************************
-Workshop #6
+Final Project
 Course:APD545 - 2237
 Last Name:Tankala
 First Name:Rohan
@@ -7,7 +7,7 @@ ID:122836166
 Section:NAA
 This assignment represents my own work in accordance with Seneca Academic Policy.
 Signature Rohan Tankala
-Date:11-26-2023
+Date:12-01-2023
 **********************************************/
 
 import javafx.application.Application;
@@ -23,20 +23,12 @@ import java.sql.*;
 
 public class App extends Application {
 
-    // @Override
-    // public void start(Stage primaryStage) throws Exception {
-    //   Parent root = FXMLLoader.load(getClass().getResource("/Views/view.fxml")); 
-    //   primaryStage.setTitle("Item Selector");
-    //     primaryStage.setScene(new Scene(root, 400, 375));   
-    //     primaryStage.show();
-    // }
-
     private Stage primaryStage;
 
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        this.primaryStage.setTitle("Item Selector");
+        this.primaryStage.setTitle("Hotel Reservation System");
 
         showLoginView();
     }
@@ -84,7 +76,6 @@ public class App extends Application {
     }
 }
 
-
 private void showRegistrationView() {
     VBox layout = new VBox(10);
     TextField usernameField = new TextField();
@@ -98,6 +89,7 @@ private void showRegistrationView() {
 
     Scene scene = new Scene(layout, 400, 375);
     primaryStage.setScene(scene);
+    primaryStage.setTitle("Hotel Reservation System"); // Set the title of the primary stage
 }
 
 private void handleRegister(String username, String password) {
@@ -128,7 +120,6 @@ private void handleRegister(String username, String password) {
         }
     }
 }
-
 
     public static void main(String[] args) {
         launch(args);

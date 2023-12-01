@@ -1,79 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Slider?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.control.TextArea?>
 
-
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ViewController" style="-fx-background-color: white;">
-    <padding>
-        <Insets top="10" right="10" bottom="10" left="10"/>
-    </padding>
-      <top>
-    <HBox alignment="CENTER" spacing="10" style="-fx-background-color: #e0e0e0;">
-        <padding>
-            <Insets top="10" right="10" bottom="10" left="10"/>
-        </padding>
-        <ComboBox fx:id="itemsComboBox" promptText="Select item" minWidth="150"/>
-        <Button fx:id="addButton" text="Add" onAction="#handleAddAction" />
-    </HBox>
-</top>
-
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ViewController">
     <center>
-        <VBox spacing="10" alignment="TOP_CENTER">
+        <VBox alignment="CENTER" spacing="10.0">
             <padding>
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
-            
-            <VBox spacing="10" alignment="CENTER">
-                <HBox alignment="CENTER_LEFT" spacing="5">
-                    <Label text="Unit" minWidth="80"/>
-                    <Label fx:id="unitValueLabel" text="0.00" minWidth="50"/>
-                </HBox>
-                <HBox alignment="CENTER_LEFT" spacing="5">
-                    <Label text="Purchased units" minWidth="80"/>
-                    <Label fx:id="purchaseQuantityValueLabel" text="0" minWidth="50"/>
-                </HBox>
-                <HBox alignment="CENTER_LEFT" spacing="5">
-                    <Label text="Price/unit" minWidth="80"/>
-                    <Label fx:id="purchasePriceValueLabel" text="0.00" minWidth="50"/>
-                </HBox>
-                <HBox alignment="CENTER_LEFT" spacing="5">
-                    <Label text="Select Units" minWidth="80"/>
-                    <Slider fx:id="quantitySlider" minWidth="150"/>
-                </HBox>
-            </VBox>
-            
-            <TableView fx:id="itemsTableView" VBox.vgrow="ALWAYS">
-                <columns>
-                    <TableColumn text="Item name" fx:id="itemNameColumn"/>
-                    <TableColumn text="Purchased units" fx:id="purchasedUnitsColumn"/>
-                    <TableColumn text="Purchase price" fx:id="purchasePriceColumn"/>
-                </columns>
-            </TableView>
-            <TextArea fx:id="itemDetailsTextArea" editable="false" wrapText="true" />
-
-            <Button fx:id="removeButton" text="Remove from Cart" onAction="#handleRemoveAction" />
-        <Button fx:id="btnSaveCart" text="Save Cart" onAction="#onSaveCartClicked"  />
-<Button fx:id="btnShowCarts" text="Show Carts" onAction="#handleShowCarts" />
-<Button fx:id="btnCheckout" text="Checkout" onAction="#onCheckoutClicked" />
-        <Button fx:id="loadFromDbButton" text="Load from DB" onAction="#onLoadFromDbClicked" />
-
+            <Button fx:id="btnBookRoom" text="Book a room" maxWidth="Infinity" onAction="#handleBookRoom"/>
+            <Button fx:id="btnBillService" text="Bill service" maxWidth="Infinity" onAction="#handleBillService"/>
+            <Button fx:id="btnCurrentBookings" text="Current bookings" maxWidth="Infinity" onAction="#handleCurrentBookings"/>
+            <Button fx:id="btnAvailableRooms" text="Available rooms" maxWidth="Infinity" onAction="#handleAvailableRooms"/>
+            <Button fx:id="btnExit" text="Exit" maxWidth="Infinity" onAction="#handleExit"/>
         </VBox>
     </center>
-<bottom>
-    <VBox alignment="BOTTOM_CENTER" spacing="10">
-        <Label fx:id="totalAmountLabel" text="Total amount: $0.00" />
-    </VBox> 
-</bottom>
-
-
 </BorderPane>
