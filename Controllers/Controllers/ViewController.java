@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -35,6 +37,7 @@ public class ViewController {
 
     private Stage bookRoomStage;
     private Stage guestInfoStage;
+    private Stage billingDetailsStage;
 
 
 
@@ -48,20 +51,43 @@ public class DatabaseConnection {
     }
 }
 
+// public class GuestDAO {
+//     public void insertGuest(String firstName, String lastName, String address, String phone, String email) throws SQLException {
+//         String query = "INSERT INTO Guests (first_name, last_name, address, phone, email) VALUES (?, ?, ?, ?, ?)";
+//         try (Connection conn = DatabaseConnection.getConnection();
+//              PreparedStatement pstmt = conn.prepareStatement(query)) {
+//             pstmt.setString(1, firstName);
+//             pstmt.setString(2, lastName);
+//             pstmt.setString(3, address);
+//             pstmt.setString(4, phone);
+//             pstmt.setString(5, email);
+//             pstmt.executeUpdate();
+//         }
+//     }
+// }
 public class GuestDAO {
-    public void insertGuest(String firstName, String lastName, String address, String phone, String email) throws SQLException {
+    public int insertGuest(String firstName, String lastName, String address, String phone, String email) throws SQLException {
         String query = "INSERT INTO Guests (first_name, last_name, address, phone, email) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
+             PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setString(1, firstName);
             pstmt.setString(2, lastName);
             pstmt.setString(3, address);
             pstmt.setString(4, phone);
             pstmt.setString(5, email);
             pstmt.executeUpdate();
+
+            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1); // Return the guest ID
+                } else {
+                    throw new SQLException("Creating guest failed, no ID obtained.");
+                }
+            }
         }
     }
 }
+
 
     
 @FXML
@@ -165,24 +191,130 @@ public void handleBookRoom() {
         guestInfoStage.show();
     }
     
+    // private void handleSubmit() {
+    //      if (guestInfoStage != null) {
+    //         guestInfoStage.close();
+    //     }
+    //     try {
+    //          String firstName = txtFirstName.getText();
+    //         String lastName = txtLastName.getText();
+    //         String address = txtAddress.getText();
+    //         String phone = txtPhone.getText();
+    //         String email = txtEmail.getText();
+    
+    //         GuestDAO guestDAO = new GuestDAO();
+    //         guestDAO.insertGuest(firstName, lastName, address, phone, email);
+    //     } catch (SQLException e) {
+    //         e.printStackTrace(); 
+    //     }
+    // }
     private void handleSubmit() {
-         if (guestInfoStage != null) {
+        if (guestInfoStage != null) {
             guestInfoStage.close();
         }
         try {
-             String firstName = txtFirstName.getText();
+            String firstName = txtFirstName.getText();
             String lastName = txtLastName.getText();
             String address = txtAddress.getText();
             String phone = txtPhone.getText();
             String email = txtEmail.getText();
     
+            // Insert guest details
             GuestDAO guestDAO = new GuestDAO();
-            guestDAO.insertGuest(firstName, lastName, address, phone, email);
+            int guestId = guestDAO.insertGuest(firstName, lastName, address, phone, email);
+    
+            // Assuming these values are retrieved from the booking form
+            String roomType = "Single"; // or "Double", based on user selection
+            int numberOfDays = 3; // Example value
+            double ratePerDay = 100.00; // Example rate
+    
+            // Insert reservation details
+            insertReservation(guestId, roomType, numberOfDays);
+    
+            // Insert billing details
+            insertBilling(guestId, ratePerDay * numberOfDays); // Simple calculation for total amount
         } catch (SQLException e) {
-            e.printStackTrace(); 
+            e.printStackTrace();
         }
     }
     
+    private void insertReservation(int guestId, String roomType, int numberOfDays) throws SQLException {
+        // Sample query. Adjust as per your database schema
+        String query = "INSERT INTO Reservations (guest_id, room_id, check_in_date, check_out_date) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, guestId);
+            // Assuming room_id is fetched based on roomType and availability
+            pstmt.setInt(2, fetchRoomId(roomType)); 
+            // Using current date as check_in_date and adding numberOfDays for check_out_date
+            pstmt.setDate(3, new java.sql.Date(System.currentTimeMillis()));
+            pstmt.setDate(4, new java.sql.Date(System.currentTimeMillis() + numberOfDays * 24 * 60 * 60 * 1000));
+            pstmt.executeUpdate();
+        }
+    }
+    
+    private void insertBilling(int guestId, double amount) throws SQLException {
+        // Sample query. Adjust as per your database schema
+        String query = "INSERT INTO Billing (reservation_id, amount) VALUES (?, ?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            // Assuming reservation_id is fetched based on guestId
+            pstmt.setInt(1, fetchReservationId(guestId)); 
+            pstmt.setDouble(2, amount);
+            pstmt.executeUpdate();
+        }
+    }
+    private void insertReservation(int guestId, String roomType, int numberOfDays) throws SQLException {
+        // Sample query. Adjust as per your database schema
+        String query = "INSERT INTO Reservations (guest_id, room_id, check_in_date, check_out_date) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, guestId);
+            pstmt.setInt(2, fetchRoomId(roomType)); // Fetch the room ID based on room type
+            pstmt.setDate(3, new java.sql.Date(System.currentTimeMillis())); // Current date as check-in
+            pstmt.setDate(4, new java.sql.Date(System.currentTimeMillis() + numberOfDays * 24 * 60 * 60 * 1000)); // Check-out date
+            pstmt.executeUpdate();
+        }
+    }
+    
+    private int fetchRoomId(String roomType) throws SQLException {
+        String query = "SELECT room_id FROM Rooms WHERE room_type = ? LIMIT 1";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, roomType);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("room_id");
+            } else {
+                throw new SQLException("No available rooms of type: " + roomType);
+            }
+        }
+    }
+    private void insertBilling(int guestId, double amount) throws SQLException {
+        // Sample query. Adjust as per your database schema
+        String query = "INSERT INTO Billing (reservation_id, amount) VALUES (?, ?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, fetchReservationId(guestId)); // Fetch the reservation ID based on guest ID
+            pstmt.setDouble(2, amount);
+            pstmt.executeUpdate();
+        }
+    }
+    
+    private int fetchReservationId(int guestId) throws SQLException {
+        String query = "SELECT reservation_id FROM Reservations WHERE guest_id = ? ORDER BY check_in_date DESC LIMIT 1";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, guestId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("reservation_id");
+            } else {
+                throw new SQLException("No reservations found for guest ID: " + guestId);
+            }
+        }
+    }
+        
 
 @FXML
 public void handleBillService() {
@@ -228,15 +360,54 @@ public void handleBillService() {
     billServiceStage.show();
 }
 
-private void showBillingDetails(String bookingId, double discount) {
-    // Fetch billing details from the database using bookingId
-    // Calculate total amount after discount
-    // Display the billing details in a new window
-    // This is a placeholder for your logic to fetch and display billing details
-    System.out.println("Booking ID: " + bookingId + ", Discount: " + discount + "%");
-    // TODO: Implement the fetching and display of billing details
-}
 
+private void showBillingDetails(String bookingId, double discount) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+        String query = "SELECT r.room_type, r.rate, COUNT(*) as room_count, g.first_name, g.last_name " +
+                       "FROM Reservations res " +
+                       "JOIN Rooms r ON res.room_id = r.room_id " +
+                       "JOIN Guests g ON res.guest_id = g.guest_id " +
+                       "WHERE res.reservation_id = ? " +
+                       "GROUP BY r.room_type, r.rate, g.first_name, g.last_name";
+
+        PreparedStatement pstmt = conn.prepareStatement(query);
+        pstmt.setInt(1, Integer.parseInt(bookingId));
+        ResultSet rs = pstmt.executeQuery();
+
+        if (rs.next()) {
+            String guestName = rs.getString("first_name") + " " + rs.getString("last_name");
+            String roomType = rs.getString("room_type");
+            int numberOfRooms = rs.getInt("room_count");
+            double ratePerNight = rs.getDouble("rate");
+
+            double totalAmount = numberOfRooms * ratePerNight;
+            double discountedAmount = totalAmount * (1 - discount / 100);
+
+            VBox vbox = new VBox(10);
+            vbox.setPadding(new Insets(20, 20, 20, 20));
+
+            vbox.getChildren().add(new Text("Booking ID: " + bookingId));
+            vbox.getChildren().add(new Text("Guest Name: " + guestName));
+            vbox.getChildren().add(new Text("No of rooms booked: " + numberOfRooms));
+            vbox.getChildren().add(new Text("Type of rooms: " + roomType));
+            vbox.getChildren().add(new Text("Rate per night: $" + ratePerNight));
+            vbox.getChildren().add(new Text("Discount: " + discount + "%"));
+            vbox.getChildren().add(new Text("Total Amount: $" + String.format("%.2f", discountedAmount)));
+
+            billingDetailsStage = new Stage();
+            billingDetailsStage.setTitle("Billing Details");
+            billingDetailsStage.setScene(new Scene(vbox));
+            billingDetailsStage.show();
+        } else {
+            // Handle case where no reservation is found
+            System.out.println("No reservation found with ID: " + bookingId);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    } catch (NumberFormatException e) {
+        System.out.println("Invalid Booking ID format.");
+    }
+}
 
 @FXML
 public void handleCurrentBookings() {
