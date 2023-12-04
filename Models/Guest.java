@@ -8,7 +8,6 @@ public class Guest {
     private String phone;
     private String email;
 
-    // Constructor
     public Guest(int guestId, String firstName, String lastName, String address, String phone, String email) {
         this.guestId = guestId;
         this.firstName = firstName;
@@ -18,7 +17,6 @@ public class Guest {
         this.email = email;
     }
 
-    // Getters and setters
     public int getGuestId() {
         return guestId;
     }

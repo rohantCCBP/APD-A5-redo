@@ -36,9 +36,9 @@
 --     FOREIGN KEY (reservation_id) REFERENCES Reservations(reservation_id)
 -- );
 
-DELETE FROM Rooms;
-DELETE FROM Guests;
-DELETE FROM Reservations;
 DELETE FROM Billing;
-INSERT INTO Rooms (room_type, rate, is_available) VALUES ('Single', 100.00, TRUE);
-INSERT INTO Rooms (room_type, rate, is_available) VALUES ('Double', 200.00, TRUE);
+DELETE FROM Reservations;
+DELETE FROM Guests;
+-- DELETE FROM Rooms;
+-- INSERT INTO Rooms (room_type, rate, is_available) VALUES ('Single', 100.00, TRUE);
+-- INSERT INTO Rooms (room_type, rate, is_available) VALUES ('Double', 200.00, TRUE);

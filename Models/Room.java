@@ -12,9 +12,6 @@ public class Room {
         this.roomType = new SimpleStringProperty(roomType);
     }
 
-    // Getters (required for PropertyValueFactory)
     public int getRoomId() { return roomId.get(); }
     public String getRoomType() { return roomType.get(); }
-
-    // Additional setters and property getters if necessary
 }

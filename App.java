@@ -33,25 +33,6 @@ public class App extends Application {
         showLoginView();
     }
 
-    // private void showLoginView() {
-    //     VBox layout = new VBox(10);
-    //     TextField usernameField = new TextField();
-    //     usernameField.setPromptText("Username");
-    //     PasswordField passwordField = new PasswordField();
-    //     passwordField.setPromptText("Password");
-    //     Button loginButton = new Button("Login");
-    //     loginButton.setOnAction(e -> handleLogin(usernameField.getText(), passwordField.getText()));
-
-    //     Button registerButton = new Button("Register");
-    //     registerButton.setOnAction(e -> showRegistrationView());
-
-    //     layout.getChildren().addAll(usernameField, passwordField, loginButton, registerButton);
-
-    //     Scene scene = new Scene(layout, 400, 375);
-    //     primaryStage.setScene(scene);
-    //     primaryStage.show();
-    // }
-    
  private void showLoginView() {
         VBox layout = new VBox(10);
         TextField usernameField = new TextField();
@@ -109,18 +90,16 @@ private boolean authenticateUser(String username, String password) {
         pst.setString(2, password);
 
         ResultSet rs = pst.executeQuery();
-        return rs.next(); // Return true if a record is found, false otherwise
+        return rs.next(); 
     } catch (SQLException e) {
         e.printStackTrace();
-        return false; // Return false in case of any SQL exceptions
+        return false; 
     }
 }
 
 private void handleAdminLogin(String username, String password) {
     if ("admin".equals(username)) {
-        // Check if the credentials are correct
-        if (authenticateUser(username, password)) {
-            // Open viewAdmin.fxml for admin
+         if (authenticateUser(username, password)) {
             try {
                 Parent root = FXMLLoader.load(getClass().getResource("/Views/viewAdmin.fxml"));
                 primaryStage.setScene(new Scene(root, 400, 375));
@@ -128,12 +107,10 @@ private void handleAdminLogin(String username, String password) {
                 e.printStackTrace();
             }
         } else {
-            // Show error for incorrect credentials
             Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid credentials for admin", ButtonType.OK);
             alert.showAndWait();
         }
     } else {
-        // Show error if the user is not admin
         Alert alert = new Alert(Alert.AlertType.ERROR, "User is not an admin", ButtonType.OK);
         alert.showAndWait();
     }
@@ -147,13 +124,12 @@ private void showRegistrationView() {
     passwordField.setPromptText("Password");
     Button registerButton = new Button("Register");
     registerButton.setOnAction(e -> handleRegister(usernameField.getText(), passwordField.getText()));
-    
 
     layout.getChildren().addAll(usernameField, passwordField,  registerButton);
 
     Scene scene = new Scene(layout, 400, 375);
     primaryStage.setScene(scene);
-    primaryStage.setTitle("Hotel Reservation System"); // Set the title of the primary stage
+    primaryStage.setTitle("Hotel Reservation System");
 }
 
 private void handleRegister(String username, String password) {
@@ -170,13 +146,13 @@ private void handleRegister(String username, String password) {
         if (affectedRows > 0) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Registration successful", ButtonType.OK);
             alert.showAndWait();
-            showLoginView(); // Redirect back to login view after successful registration
+            showLoginView();
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Registration failed", ButtonType.OK);
             alert.showAndWait();
         }
     } catch (SQLException e) {
-        if (e.getErrorCode() == 1062) { // MySQL error code for duplicate entry
+        if (e.getErrorCode() == 1062) { 
             Alert alert = new Alert(Alert.AlertType.ERROR, "Username already exists", ButtonType.OK);
             alert.showAndWait();
         } else {
@@ -184,7 +160,6 @@ private void handleRegister(String username, String password) {
         }
     }
 }
-
     public static void main(String[] args) {
         launch(args);
     }

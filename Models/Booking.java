@@ -18,12 +18,9 @@ public class Booking {
         this.numberOfDays = new SimpleIntegerProperty(numberOfDays);
     }
 
-    // Getters (required for PropertyValueFactory)
     public int getBookingId() { return bookingId.get(); }
     public String getCustomerName() { return customerName.get(); }
     public String getRoomType() { return roomType.get(); }
     public int getNumberOfRooms() { return numberOfRooms.get(); }
     public int getNumberOfDays() { return numberOfDays.get(); }
-
-    // Additional setters and property getters if necessary
 }

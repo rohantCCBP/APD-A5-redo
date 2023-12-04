@@ -72,20 +72,6 @@ public class DatabaseConnection {
     }
 }
 
-// public class GuestDAO {
-//     public void insertGuest(String firstName, String lastName, String address, String phone, String email) throws SQLException {
-//         String query = "INSERT INTO Guests (first_name, last_name, address, phone, email) VALUES (?, ?, ?, ?, ?)";
-//         try (Connection conn = DatabaseConnection.getConnection();
-//              PreparedStatement pstmt = conn.prepareStatement(query)) {
-//             pstmt.setString(1, firstName);
-//             pstmt.setString(2, lastName);
-//             pstmt.setString(3, address);
-//             pstmt.setString(4, phone);
-//             pstmt.setString(5, email);
-//             pstmt.executeUpdate();
-//         }
-//     }
-// }
 public class GuestDAO {
     public int insertGuest(String firstName, String lastName, String address, String phone, String email) throws SQLException {
         String query = "INSERT INTO Guests (first_name, last_name, address, phone, email) VALUES (?, ?, ?, ?, ?)";
@@ -100,7 +86,7 @@ public class GuestDAO {
 
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    return generatedKeys.getInt(1); // Return the guest ID
+                    return generatedKeys.getInt(1); 
                 } else {
                     throw new SQLException("Creating guest failed, no ID obtained.");
                 }
@@ -108,8 +94,6 @@ public class GuestDAO {
         }
     }
 }
-
-
     
 @FXML
 public void handleBookRoom() {
@@ -140,8 +124,6 @@ public void handleBookRoom() {
     TextField txtRatePerDay = new TextField();
     grid.add(txtRatePerDay, 1, 3);
 
-      //  vbox.getChildren().add(grid);
-
     bookRoomStage = new Stage();
     bookRoomStage.setTitle("Book a Room");
    
@@ -159,7 +141,6 @@ public void handleBookRoom() {
     bookRoomStage.setScene(scene);
      bookRoomStage.show();
 }
-
 
     private void handleNext() {
         if (bookRoomStage != null) {
@@ -212,23 +193,6 @@ public void handleBookRoom() {
         guestInfoStage.show();
     }
     
-    // private void handleSubmit() {
-    //      if (guestInfoStage != null) {
-    //         guestInfoStage.close();
-    //     }
-    //     try {
-    //          String firstName = txtFirstName.getText();
-    //         String lastName = txtLastName.getText();
-    //         String address = txtAddress.getText();
-    //         String phone = txtPhone.getText();
-    //         String email = txtEmail.getText();
-    
-    //         GuestDAO guestDAO = new GuestDAO();
-    //         guestDAO.insertGuest(firstName, lastName, address, phone, email);
-    //     } catch (SQLException e) {
-    //         e.printStackTrace(); 
-    //     }
-    // }
     private void handleSubmit() {
         if (guestInfoStage != null) {
             guestInfoStage.close();
@@ -240,28 +204,24 @@ public void handleBookRoom() {
             String phone = txtPhone.getText();
             String email = txtEmail.getText();
     
-            // Insert guest details
-            GuestDAO guestDAO = new GuestDAO();
+             GuestDAO guestDAO = new GuestDAO();
             int guestId = guestDAO.insertGuest(firstName, lastName, address, phone, email);
     
-            // Assuming these values are retrieved from the booking form
-            String roomType = "Single"; // or "Double", based on user selection
-            int numberOfDays = 3; // Example value
-            double ratePerDay = 100.00; // Example rate
+            String roomType = "Single"; 
+            int numberOfDays = 3; 
+            double ratePerDay = 100.00; 
     
-            // Insert reservation details
             insertReservation(guestId, roomType, numberOfDays);
     
-            // Insert billing details
-            insertBilling(guestId, ratePerDay * numberOfDays); // Simple calculation for total amount
+
+            insertBilling(guestId, ratePerDay * numberOfDays); 
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
     
     private void insertReservation(int guestId, String roomType, int numberOfDays) throws SQLException {
-        // Sample query. Adjust as per your database schema
-        String query = "INSERT INTO Reservations (guest_id, room_id, check_in_date, check_out_date) VALUES (?, ?, ?, ?)";
+         String query = "INSERT INTO Reservations (guest_id, room_id, check_in_date, check_out_date) VALUES (?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, guestId);
@@ -274,29 +234,26 @@ public void handleBookRoom() {
         }
     }
     
-    private void insertBilling(int guestId, double amount) throws SQLException {
-        // Sample query. Adjust as per your database schema
-        String query = "INSERT INTO Billing (reservation_id, amount) VALUES (?, ?)";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-            // Assuming reservation_id is fetched based on guestId
-            pstmt.setInt(1, fetchReservationId(guestId)); 
-            pstmt.setDouble(2, amount);
-            pstmt.executeUpdate();
-        }
-    }
-    private void insertReservation(int guestId, String roomType, int numberOfDays) throws SQLException {
-        // Sample query. Adjust as per your database schema
-        String query = "INSERT INTO Reservations (guest_id, room_id, check_in_date, check_out_date) VALUES (?, ?, ?, ?)";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, guestId);
-            pstmt.setInt(2, fetchRoomId(roomType)); // Fetch the room ID based on room type
-            pstmt.setDate(3, new java.sql.Date(System.currentTimeMillis())); // Current date as check-in
-            pstmt.setDate(4, new java.sql.Date(System.currentTimeMillis() + numberOfDays * 24 * 60 * 60 * 1000)); // Check-out date
-            pstmt.executeUpdate();
-        }
-    }
+    // private void insertBilling(int guestId, double amount) throws SQLException {
+    //     String query = "INSERT INTO Billing (reservation_id, amount) VALUES (?, ?)";
+    //     try (Connection conn = DatabaseConnection.getConnection();
+    //          PreparedStatement pstmt = conn.prepareStatement(query)) {
+    //         pstmt.setInt(1, fetchReservationId(guestId)); 
+    //         pstmt.setDouble(2, amount);
+    //         pstmt.executeUpdate();
+    //     }
+    // }
+    // private void insertReservation(int guestId, String roomType, int numberOfDays) throws SQLException {
+    //String query = "INSERT INTO Reservations (guest_id, room_id, check_in_date, check_out_date) VALUES (?, ?, ?, ?)";
+    //     try (Connection conn = DatabaseConnection.getConnection();
+    //          PreparedStatement pstmt = conn.prepareStatement(query)) {
+    //         pstmt.setInt(1, guestId);
+    //         pstmt.setInt(2, fetchRoomId(roomType)); // Fetch the room ID based on room type
+    //         pstmt.setDate(3, new java.sql.Date(System.currentTimeMillis()));  
+    //         pstmt.setDate(4, new java.sql.Date(System.currentTimeMillis() + numberOfDays * 24 * 60 * 60 * 1000));  
+    //         pstmt.executeUpdate();
+    //     }
+    // }
     
     private int fetchRoomId(String roomType) throws SQLException {
         String query = "SELECT room_id FROM Rooms WHERE room_type = ? LIMIT 1";
@@ -312,11 +269,10 @@ public void handleBookRoom() {
         }
     }
     private void insertBilling(int guestId, double amount) throws SQLException {
-        // Sample query. Adjust as per your database schema
-        String query = "INSERT INTO Billing (reservation_id, amount) VALUES (?, ?)";
+         String query = "INSERT INTO Billing (reservation_id, amount) VALUES (?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, fetchReservationId(guestId)); // Fetch the reservation ID based on guest ID
+            pstmt.setInt(1, fetchReservationId(guestId)); 
             pstmt.setDouble(2, amount);
             pstmt.executeUpdate();
         }
@@ -336,7 +292,6 @@ public void handleBookRoom() {
         }
     }
         
-
 @FXML
 public void handleBillService() {
     VBox vbox = new VBox(10);
@@ -367,8 +322,6 @@ public void handleBillService() {
     // Show Bill button
     Button btnShowBill = new Button("Show Bill");
     btnShowBill.setOnAction(event -> {
-        // Assuming a method to fetch and calculate billing details
-        // You'll need to implement the logic to fetch billing details from the database
         showBillingDetails(txtBookingId.getText(), discountSlider.getValue());
     });
     grid.add(btnShowBill, 1, 2);
@@ -420,7 +373,6 @@ private void showBillingDetails(String bookingId, double discount) {
             billingDetailsStage.setScene(new Scene(vbox));
             billingDetailsStage.show();
         } else {
-            // Handle case where no reservation is found
             System.out.println("No reservation found with ID: " + bookingId);
         }
     } catch (SQLException e) {
@@ -432,12 +384,10 @@ private void showBillingDetails(String bookingId, double discount) {
 
 @FXML
 public void handleCurrentBookings() {
-    // Create the Stage and TableView
     Stage currentBookingsStage = new Stage();
     TableView<Booking> table = new TableView<>();
     currentBookingsStage.setTitle("Current Bookings");
 
-    // Define the table columns
     TableColumn<Booking, Integer> bookingCol = new TableColumn<>("Booking #");
     bookingCol.setCellValueFactory(new PropertyValueFactory<>("bookingId"));
 
@@ -495,15 +445,12 @@ private List<Booking> fetchCurrentBookings() {
     return bookings;
 }
 
-
-
 @FXML
 public void handleAvailableRooms() {
     Stage availableRoomsStage = new Stage();
     TableView<Room> table = new TableView<>();
     availableRoomsStage.setTitle("Available Rooms");
 
-    // Define the table columns
     TableColumn<Room, Integer> roomIdCol = new TableColumn<>("Room ID");
     roomIdCol.setCellValueFactory(new PropertyValueFactory<>("roomId"));
 
@@ -512,11 +459,9 @@ public void handleAvailableRooms() {
 
     table.getColumns().addAll(roomIdCol, roomTypeCol);
 
-    // Fetch the available rooms from the database and add to the table
     ObservableList<Room> rooms = FXCollections.observableArrayList(fetchAvailableRooms());
     table.setItems(rooms);
 
-    // Layout and scene setting
     VBox vbox = new VBox();
     vbox.getChildren().addAll(table);
     Scene scene = new Scene(vbox);
@@ -555,11 +500,7 @@ public void searchGuests() {
 
     Optional<String> result = searchDialog.showAndWait();
     result.ifPresent(searchTerm -> {
-        // Assuming a method to search for guests and return results
         List<Guest> guests = searchForGuests(searchTerm);
-        // Display the results in a new window or as a dialog
-        // This part of the implementation would be similar to the previous examples
-        // where you create a Stage and display the results in a TableView.
     });
 }
 
@@ -600,10 +541,8 @@ public void cancelBooking() {
 
     Optional<String> result = cancelDialog.showAndWait();
     result.ifPresent(bookingId -> {
-        // Assuming a method to cancel the booking
         cancelBookingById(bookingId);
-        // Notify the user of success or handle the case if the booking was not found
-    });
+       });
 }
 
 private void cancelBookingById(String bookingId) {
@@ -637,10 +576,8 @@ public void checkoutGuest() {
 
     Optional<String> result = checkoutDialog.showAndWait();
     result.ifPresent(id -> {
-        // Assuming a method to check out the guest
         checkoutGuestById(id);
-        // Notify the user of success or handle the case if the guest/booking was not found
-    });
+         });
 }
 
 private void checkoutGuestById(String id) {
@@ -651,13 +588,11 @@ private void checkoutGuestById(String id) {
     try (Connection conn = DatabaseConnection.getConnection();
          PreparedStatement pstmtRoom = conn.prepareStatement(queryUpdateRoom);
          PreparedStatement pstmtReservation = conn.prepareStatement(queryDeleteReservation)) {
-        
-        // Update room availability
-        pstmtRoom.setInt(1, Integer.parseInt(id));
+       
+            pstmtRoom.setInt(1, Integer.parseInt(id));
         pstmtRoom.setInt(2, Integer.parseInt(id));
         pstmtRoom.executeUpdate();
         
-        // Remove the reservation
         pstmtReservation.setInt(1, Integer.parseInt(id));
         pstmtReservation.setInt(2, Integer.parseInt(id));
         int affectedRows = pstmtReservation.executeUpdate();
@@ -682,6 +617,4 @@ public void handleExit() {
     Platform.exit();
     System.exit(0);
 }
-
-
 }
