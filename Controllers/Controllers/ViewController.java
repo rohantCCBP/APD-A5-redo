@@ -7,8 +7,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
+import Models.Booking;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -20,11 +25,24 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import javafx.scene.control.TableView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.Scene;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+
 
 public class ViewController {
     @FXML
@@ -411,8 +429,71 @@ private void showBillingDetails(String bookingId, double discount) {
 
 @FXML
 public void handleCurrentBookings() {
-    
+    // Create the Stage and TableView
+    Stage currentBookingsStage = new Stage();
+    TableView<Booking> table = new TableView<>();
+    currentBookingsStage.setTitle("Current Bookings");
+
+    // Define the table columns
+    TableColumn<Booking, Integer> bookingCol = new TableColumn<>("Booking #");
+    bookingCol.setCellValueFactory(new PropertyValueFactory<>("bookingId"));
+
+    TableColumn<Booking, String> customerNameCol = new TableColumn<>("Customer Name");
+    customerNameCol.setCellValueFactory(new PropertyValueFactory<>("customerName"));
+
+    TableColumn<Booking, String> roomTypeCol = new TableColumn<>("Room Type");
+    roomTypeCol.setCellValueFactory(new PropertyValueFactory<>("roomType"));
+
+    TableColumn<Booking, Integer> noRoomsCol = new TableColumn<>("No of Rooms");
+    noRoomsCol.setCellValueFactory(new PropertyValueFactory<>("numberOfRooms"));
+
+    TableColumn<Booking, Integer> noDaysCol = new TableColumn<>("No of Days");
+    noDaysCol.setCellValueFactory(new PropertyValueFactory<>("numberOfDays"));
+
+    table.getColumns().addAll(bookingCol, customerNameCol, roomTypeCol, noRoomsCol, noDaysCol);
+
+    // Fetch the bookings from the database and add to the table
+    ObservableList<Booking> bookings = FXCollections.observableArrayList(fetchCurrentBookings());
+    table.setItems(bookings);
+
+    // Layout and scene setting
+    VBox vbox = new VBox();
+    vbox.getChildren().addAll(table);
+    Scene scene = new Scene(vbox);
+    currentBookingsStage.setScene(scene);
+    currentBookingsStage.show();
 }
+
+private List<Booking> fetchCurrentBookings() {
+    List<Booking> bookings = new ArrayList<>();
+    String query = "SELECT res.reservation_id, CONCAT(g.first_name, ' ', g.last_name) AS customer_name, " +
+                   "r.room_type, COUNT(res.room_id) as number_of_rooms, DATEDIFF(res.check_out_date, res.check_in_date) as number_of_days " +
+                   "FROM Reservations res " +
+                   "JOIN Guests g ON res.guest_id = g.guest_id " +
+                   "JOIN Rooms r ON res.room_id = r.room_id " +
+                   "GROUP BY res.reservation_id, g.first_name, g.last_name, r.room_type";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(query)) {
+        ResultSet rs = pstmt.executeQuery();
+        
+        while (rs.next()) {
+            int bookingId = rs.getInt("reservation_id");
+            String customerName = rs.getString("customer_name");
+            String roomType = rs.getString("room_type");
+            int numberOfRooms = rs.getInt("number_of_rooms");
+            int numberOfDays = rs.getInt("number_of_days");
+            
+            bookings.add(new Booking(bookingId, customerName, roomType, numberOfRooms, numberOfDays));
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return bookings;
+}
+
+
+
 @FXML
 public void handleAvailableRooms() {
 }
