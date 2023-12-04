@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Models.Booking;
+import Models.Room;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -496,7 +497,51 @@ private List<Booking> fetchCurrentBookings() {
 
 @FXML
 public void handleAvailableRooms() {
+    Stage availableRoomsStage = new Stage();
+    TableView<Room> table = new TableView<>();
+    availableRoomsStage.setTitle("Available Rooms");
+
+    // Define the table columns
+    TableColumn<Room, Integer> roomIdCol = new TableColumn<>("Room ID");
+    roomIdCol.setCellValueFactory(new PropertyValueFactory<>("roomId"));
+
+    TableColumn<Room, String> roomTypeCol = new TableColumn<>("Room Type");
+    roomTypeCol.setCellValueFactory(new PropertyValueFactory<>("roomType"));
+
+    table.getColumns().addAll(roomIdCol, roomTypeCol);
+
+    // Fetch the available rooms from the database and add to the table
+    ObservableList<Room> rooms = FXCollections.observableArrayList(fetchAvailableRooms());
+    table.setItems(rooms);
+
+    // Layout and scene setting
+    VBox vbox = new VBox();
+    vbox.getChildren().addAll(table);
+    Scene scene = new Scene(vbox);
+    availableRoomsStage.setScene(scene);
+    availableRoomsStage.show();
 }
+
+private List<Room> fetchAvailableRooms() {
+    List<Room> availableRooms = new ArrayList<>();
+    String query = "SELECT room_id, room_type FROM Rooms WHERE is_available = TRUE";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(query)) {
+        ResultSet rs = pstmt.executeQuery();
+        
+        while (rs.next()) {
+            int roomId = rs.getInt("room_id");
+            String roomType = rs.getString("room_type");
+            
+            availableRooms.add(new Room(roomId, roomType));
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return availableRooms;
+}
+
 
 
 @FXML
