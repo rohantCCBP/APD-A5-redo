@@ -1,4 +1,4 @@
-package Controllers;
+// package Controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
@@ -81,7 +81,7 @@ private double calculateBillingAmount(double ratePerDay, int numberOfDays) {
     return ratePerDay * numberOfDays;
 }
 
-private void insertBillingRecord(int guestId, int roomId, double amount) {
+// private void insertBillingRecord(int guestId, int roomId, double amount) {
     // Insert billing information into the database
 
 
@@ -89,12 +89,13 @@ private void insertBillingRecord(int guestId, int roomId, double amount) {
         // Insert the guest information into the database
        // int guestId = insertGuestIntoDatabase();
 
-        if (guestId != -1) {
-            // Assuming you have a method to proceed to the next booking step
-           // proceedToNextBookingStep(guestId);
-        } else {
-            showAlert("Database Error", "Could not save guest information.");
-        }
+        // if (guestId != -1) {
+        //     // Assuming you have a method to proceed to the next booking step
+        //    // proceedToNextBookingStep(guestId);
+        // } 
+        // else {
+        //     showAlert("Database Error", "Could not save guest information.");
+        // }
     
 
     private void insertGuestIntoDatabase() {

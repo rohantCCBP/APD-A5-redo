@@ -59,7 +59,6 @@ public class ViewController {
     private Stage billingDetailsStage;
 
 
-
 public class DatabaseConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/apd-db";
     private static final String USER = "root";

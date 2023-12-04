@@ -33,7 +33,26 @@ public class App extends Application {
         showLoginView();
     }
 
-    private void showLoginView() {
+    // private void showLoginView() {
+    //     VBox layout = new VBox(10);
+    //     TextField usernameField = new TextField();
+    //     usernameField.setPromptText("Username");
+    //     PasswordField passwordField = new PasswordField();
+    //     passwordField.setPromptText("Password");
+    //     Button loginButton = new Button("Login");
+    //     loginButton.setOnAction(e -> handleLogin(usernameField.getText(), passwordField.getText()));
+
+    //     Button registerButton = new Button("Register");
+    //     registerButton.setOnAction(e -> showRegistrationView());
+
+    //     layout.getChildren().addAll(usernameField, passwordField, loginButton, registerButton);
+
+    //     Scene scene = new Scene(layout, 400, 375);
+    //     primaryStage.setScene(scene);
+    //     primaryStage.show();
+    // }
+    
+ private void showLoginView() {
         VBox layout = new VBox(10);
         TextField usernameField = new TextField();
         usernameField.setPromptText("Username");
@@ -41,10 +60,14 @@ public class App extends Application {
         passwordField.setPromptText("Password");
         Button loginButton = new Button("Login");
         loginButton.setOnAction(e -> handleLogin(usernameField.getText(), passwordField.getText()));
+
         Button registerButton = new Button("Register");
         registerButton.setOnAction(e -> showRegistrationView());
 
-        layout.getChildren().addAll(usernameField, passwordField, loginButton, registerButton);
+    Button adminLoginButton = new Button("Login using phone booking (admin access only)");
+    adminLoginButton.setOnAction(e -> handleAdminLogin(usernameField.getText(), passwordField.getText()));
+
+        layout.getChildren().addAll(usernameField, passwordField, loginButton,adminLoginButton, registerButton);
 
         Scene scene = new Scene(layout, 400, 375);
         primaryStage.setScene(scene);
@@ -64,8 +87,8 @@ public class App extends Application {
         ResultSet rs = pst.executeQuery();
         if (rs.next()) {
             // User found, load main view
-            Parent root = FXMLLoader.load(getClass().getResource("/Views/view.fxml"));
-            primaryStage.setScene(new Scene(root, 400, 375));
+  Parent root = FXMLLoader.load(getClass().getResource("/Views/view.fxml"));
+   primaryStage.setScene(new Scene(root, 400, 375));
         } else {
             // User not found, show error
             Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid credentials", ButtonType.OK);
@@ -73,6 +96,46 @@ public class App extends Application {
         }
     } catch (SQLException | IOException e) {
         e.printStackTrace();
+    }
+}
+private boolean authenticateUser(String username, String password) {
+    String url = "jdbc:mysql://localhost:3306/apd-db";
+    String dbUsername = "root";
+    String dbPassword = "password";
+
+    try (Connection conn = DriverManager.getConnection(url, dbUsername, dbPassword);
+         PreparedStatement pst = conn.prepareStatement("SELECT * FROM users WHERE username=? AND password=?")) {
+        pst.setString(1, username);
+        pst.setString(2, password);
+
+        ResultSet rs = pst.executeQuery();
+        return rs.next(); // Return true if a record is found, false otherwise
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false; // Return false in case of any SQL exceptions
+    }
+}
+
+private void handleAdminLogin(String username, String password) {
+    if ("admin".equals(username)) {
+        // Check if the credentials are correct
+        if (authenticateUser(username, password)) {
+            // Open viewAdmin.fxml for admin
+            try {
+                Parent root = FXMLLoader.load(getClass().getResource("/Views/viewAdmin.fxml"));
+                primaryStage.setScene(new Scene(root, 400, 375));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // Show error for incorrect credentials
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid credentials for admin", ButtonType.OK);
+            alert.showAndWait();
+        }
+    } else {
+        // Show error if the user is not admin
+        Alert alert = new Alert(Alert.AlertType.ERROR, "User is not an admin", ButtonType.OK);
+        alert.showAndWait();
     }
 }
 
@@ -84,8 +147,9 @@ private void showRegistrationView() {
     passwordField.setPromptText("Password");
     Button registerButton = new Button("Register");
     registerButton.setOnAction(e -> handleRegister(usernameField.getText(), passwordField.getText()));
+    
 
-    layout.getChildren().addAll(usernameField, passwordField, registerButton);
+    layout.getChildren().addAll(usernameField, passwordField,  registerButton);
 
     Scene scene = new Scene(layout, 400, 375);
     primaryStage.setScene(scene);
