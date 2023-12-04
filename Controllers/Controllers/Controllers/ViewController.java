@@ -9,8 +9,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import Models.Booking;
+import Models.Guest;
 import Models.Room;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -26,6 +28,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -540,6 +543,137 @@ private List<Room> fetchAvailableRooms() {
     }
     return availableRooms;
 }
+
+
+@FXML
+public void searchGuests() {
+    // Prompt for guest name or phone number
+    TextInputDialog searchDialog = new TextInputDialog();
+    searchDialog.setTitle("Search Guests");
+    searchDialog.setHeaderText("Search for guests by name or phone number:");
+    searchDialog.setContentText("Enter name or phone number:");
+
+    Optional<String> result = searchDialog.showAndWait();
+    result.ifPresent(searchTerm -> {
+        // Assuming a method to search for guests and return results
+        List<Guest> guests = searchForGuests(searchTerm);
+        // Display the results in a new window or as a dialog
+        // This part of the implementation would be similar to the previous examples
+        // where you create a Stage and display the results in a TableView.
+    });
+}
+
+private List<Guest> searchForGuests(String searchTerm) {
+    List<Guest> foundGuests = new ArrayList<>();
+    String query = "SELECT * FROM Guests WHERE first_name LIKE ? OR last_name LIKE ? OR phone LIKE ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(query)) {
+        pstmt.setString(1, "%" + searchTerm + "%");
+        pstmt.setString(2, "%" + searchTerm + "%");
+        pstmt.setString(3, "%" + searchTerm + "%");
+        ResultSet rs = pstmt.executeQuery();
+        
+        while (rs.next()) {
+            Guest guest = new Guest(
+                rs.getInt("guest_id"),
+                rs.getString("first_name"),
+                rs.getString("last_name"),
+                rs.getString("address"),
+                rs.getString("phone"),
+                rs.getString("email")
+            );
+            foundGuests.add(guest);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return foundGuests;
+}
+
+@FXML
+public void cancelBooking() {
+    TextInputDialog cancelDialog = new TextInputDialog();
+    cancelDialog.setTitle("Cancel Booking");
+    cancelDialog.setHeaderText("Cancel a booking:");
+    cancelDialog.setContentText("Enter booking ID:");
+
+    Optional<String> result = cancelDialog.showAndWait();
+    result.ifPresent(bookingId -> {
+        // Assuming a method to cancel the booking
+        cancelBookingById(bookingId);
+        // Notify the user of success or handle the case if the booking was not found
+    });
+}
+
+private void cancelBookingById(String bookingId) {
+    String query = "DELETE FROM Reservations WHERE reservation_id = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(query)) {
+        pstmt.setInt(1, Integer.parseInt(bookingId));
+        int affectedRows = pstmt.executeUpdate();
+        
+        if (affectedRows > 0) {
+            System.out.println("Booking with ID " + bookingId + " was successfully canceled.");
+        } else {
+            System.out.println("No booking found with ID " + bookingId);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    } catch (NumberFormatException e) {
+        System.out.println("Invalid booking ID format.");
+    }
+}
+
+
+
+@FXML
+public void checkoutGuest() {
+    TextInputDialog checkoutDialog = new TextInputDialog();
+    checkoutDialog.setTitle("Check Out Guest");
+    checkoutDialog.setHeaderText("Check out a guest:");
+    checkoutDialog.setContentText("Enter guest ID or booking ID:");
+
+    Optional<String> result = checkoutDialog.showAndWait();
+    result.ifPresent(id -> {
+        // Assuming a method to check out the guest
+        checkoutGuestById(id);
+        // Notify the user of success or handle the case if the guest/booking was not found
+    });
+}
+
+private void checkoutGuestById(String id) {
+    String queryUpdateRoom = "UPDATE Rooms SET is_available = TRUE WHERE room_id IN " +
+                             "(SELECT room_id FROM Reservations WHERE guest_id = ? OR reservation_id = ?)";
+    String queryDeleteReservation = "DELETE FROM Reservations WHERE guest_id = ? OR reservation_id = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement pstmtRoom = conn.prepareStatement(queryUpdateRoom);
+         PreparedStatement pstmtReservation = conn.prepareStatement(queryDeleteReservation)) {
+        
+        // Update room availability
+        pstmtRoom.setInt(1, Integer.parseInt(id));
+        pstmtRoom.setInt(2, Integer.parseInt(id));
+        pstmtRoom.executeUpdate();
+        
+        // Remove the reservation
+        pstmtReservation.setInt(1, Integer.parseInt(id));
+        pstmtReservation.setInt(2, Integer.parseInt(id));
+        int affectedRows = pstmtReservation.executeUpdate();
+        
+        if (affectedRows > 0) {
+            System.out.println("Guest with ID/Booking ID " + id + " has been checked out.");
+        } else {
+            System.out.println("No guest/booking found with ID " + id);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    } catch (NumberFormatException e) {
+        System.out.println("Invalid guest ID/booking ID format.");
+    }
+}
+
 
 
 

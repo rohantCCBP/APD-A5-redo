@@ -15,9 +15,9 @@
             <Button fx:id="btnBillService" text="Bill service" maxWidth="Infinity" onAction="#handleBillService"/>
             <Button fx:id="btnCurrentBookings" text="Current bookings" maxWidth="Infinity" onAction="#handleCurrentBookings"/>
             <Button fx:id="btnAvailableRooms" text="Available rooms" maxWidth="Infinity" onAction="#handleAvailableRooms"/>           
-            <Button fx:id="btnSearchGuests" text="Search guests by name/phone number" maxWidth="Infinity" />
-            <Button fx:id="btnCancelBooking" text="Cancel a booking" maxWidth="Infinity"/>
-            <Button fx:id="btnCheckOutGuest" text="Check out guest" maxWidth="Infinity" />
+            <Button fx:id="btnSearchGuests" text="Search guests by name/phone number" maxWidth="Infinity" onAction="#searchGuests"/>
+            <Button fx:id="btnCancelBooking" text="Cancel a booking" maxWidth="Infinity" onAction="#cancelBooking"/>
+            <Button fx:id="btnCheckOutGuest" text="Check out guest" maxWidth="Infinity" onAction="#checkoutGuest"/>
             <Button fx:id="btnExit" text="Exit" maxWidth="Infinity" onAction="#handleExit"/> 
 
 </VBox>
