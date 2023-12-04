@@ -16,6 +16,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -185,8 +186,57 @@ public void handleBookRoom() {
 
 @FXML
 public void handleBillService() {
-    
+    VBox vbox = new VBox(10);
+    vbox.setPadding(new Insets(20, 20, 20, 20));
+
+    Text title = new Text("Billing Service");
+    vbox.getChildren().add(title);
+
+    GridPane grid = new GridPane();
+    grid.setHgap(10);
+    grid.setVgap(10);
+
+    // Booking ID
+    grid.add(new Label("Booking ID:"), 0, 0);
+    TextField txtBookingId = new TextField();
+    grid.add(txtBookingId, 1, 0);
+
+    // Discount Slider
+    grid.add(new Label("Discount (%):"), 0, 1);
+    Slider discountSlider = new Slider(0, 25, 0);
+    discountSlider.setShowTickLabels(true);
+    discountSlider.setShowTickMarks(true);
+    discountSlider.setMajorTickUnit(5);
+    discountSlider.setMinorTickCount(1);
+    discountSlider.setSnapToTicks(true);
+    grid.add(discountSlider, 1, 1);
+
+    // Show Bill button
+    Button btnShowBill = new Button("Show Bill");
+    btnShowBill.setOnAction(event -> {
+        // Assuming a method to fetch and calculate billing details
+        // You'll need to implement the logic to fetch billing details from the database
+        showBillingDetails(txtBookingId.getText(), discountSlider.getValue());
+    });
+    grid.add(btnShowBill, 1, 2);
+
+    vbox.getChildren().add(grid);
+
+    Stage billServiceStage = new Stage();
+    billServiceStage.setTitle("Bill Service");
+    billServiceStage.setScene(new Scene(vbox));
+    billServiceStage.show();
 }
+
+private void showBillingDetails(String bookingId, double discount) {
+    // Fetch billing details from the database using bookingId
+    // Calculate total amount after discount
+    // Display the billing details in a new window
+    // This is a placeholder for your logic to fetch and display billing details
+    System.out.println("Booking ID: " + bookingId + ", Discount: " + discount + "%");
+    // TODO: Implement the fetching and display of billing details
+}
+
 
 @FXML
 public void handleCurrentBookings() {
